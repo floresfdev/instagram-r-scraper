@@ -32,7 +32,7 @@ media_count <- as.integer(100)
 2) Run the script:
 
 ```r
-source(scraper.R)
+source("scraper.R")
 ```
 
 3) Find the output datasets in the `./dataout/` directory.
