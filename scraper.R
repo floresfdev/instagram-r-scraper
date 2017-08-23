@@ -16,14 +16,14 @@ print(.jclassPath())
 
 ## Check the JVM init
 if (jvm_status == 0) {
-    message("JVM init succesful.")
+    message("JVM init successful.")
 } else {
     stop("Error: JVM init.")
 }
 
 
 # ---
-# Instantiate a new Instagram object
+# Instantiate a new Instagram object with default constructor
 
 tryCatch(
     j_instagram <- .jnew("me/postaddict/instagramscraper/Instagram"), 
@@ -39,12 +39,16 @@ if (is.jnull(j_instagram)) {
 # ---
 # Account information
 
-## User @berlinphil (Berliner Philharmoniker)
+## Call method Instagram.getAccountByUsername()
+## Params:
+## - String username: "berlinphil" (@berlinphil, Berliner Philharmoniker)
 user_account <- "berlinphil"
 j_account <- jInstagram$getAccountByUsername(user_account)
 
 if (is.jnull(j_account)) {
     stop("Error: Can't retrieve account information.")
+} else {
+    message("Account information retrieved successfully.")
 }
 
 
@@ -76,6 +80,7 @@ Encoding(df_account$fullName) <- c("UTF-8")
 
 # ---
 # Account information: Write to CSV
+
 account_file_path <- paste0("./dataout/", 
                             "instagram_account_", 
                             user_account,
@@ -85,3 +90,80 @@ write.csv(df_account,
           file = account_file_path, 
           fileEncoding = "UTF-8", 
           row.names = FALSE)
+
+
+# ---
+# Media
+
+## Call method Instagram.getMediasArray()
+## Params:
+## - String username: "berlinphil" (@berlinphil, Berliner Philharmoniker)
+## - int count: 100 (to retrieve only 100 posts)
+## Return:
+## - Array of Media objects
+medias_count <- as.integer(100)
+tryCatch(
+    j_medias_array <-
+        .jcall(j_instagram,
+               "[Lme/postaddict/instagramscraper/model/Media;",
+               "getMediasArray", 
+               user_account, 
+               medias_count,
+               evalString = FALSE),
+    Exception = function(e) {
+        e$printStackTrace()
+    })
+
+if (length(j_medias_array) == 0) {
+    warning("Warning: No media retrieved.")
+} else {
+    message("Media posts retrieved successfully.")
+}
+
+
+# ---
+# Media: Create dataframe
+
+posts_rows <- 
+    lapply(
+        j_medias_array, 
+        function(media) {
+            post_row <- data.frame(
+                id = media$id,
+                createdTime = as.POSIXct(media$createdTime, 
+                                         origin = "1970-01-01"),
+                type = media$type,
+                link = media$link,
+                imageStandardResolutionUrl = media$imageStandardResolutionUrl,
+                caption = media$caption,
+                code = media$code,
+                commentsCount = media$commentsCount,
+                likesCount = media$likesCount,
+                videoViews = media$videoViews,
+                stringsAsFactors = FALSE
+            )
+            
+        }
+    )
+
+df_posts <- do.call("rbind", posts_rows)
+
+## Treat encoding
+Encoding(df_posts$caption) <- c("UTF-8")
+
+
+# ---
+# Media: Write to CSV
+
+posts_file_path <- paste0("./dataout/", 
+                            "instagram_posts_", 
+                            user_account,
+                            ".csv")
+
+write.csv(df_posts, 
+          file = posts_file_path, 
+          fileEncoding = "UTF-8", 
+          row.names = FALSE)
+
+
+message("End of script.")
