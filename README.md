@@ -19,20 +19,20 @@ install.packages("rJava")
 
 ### Instructions
 
-1. Configure the settings at the top of the script `scraper.R`:
+1) Configure the settings at the top of the script `scraper.R`:
 
-   ```r
-   ## User account to scrape
-   user_account <- "berlinphil"
-   
-   ## Max number of posts to retrieve
-   media_count <- as.integer(100)
-   ```
+```r
+## User account to scrape
+user_account <- "berlinphil"
 
-2. Run the script:
+## Max number of posts to retrieve
+media_count <- as.integer(100)
+```
 
-   ```r
-   source(scraper.R)
-   ```
+2) Run the script:
 
-3. Find the output datasets in the `./dataout/` directory.
+```r
+source(scraper.R)
+```
+
+3) Find the output datasets in the `./dataout/` directory.
