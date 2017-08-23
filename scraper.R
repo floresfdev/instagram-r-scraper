@@ -4,6 +4,16 @@ library(rJava)
 
 
 # ---
+# Settings
+
+## User account to scrape
+user_account <- "berlinphil"
+
+## Max number of posts to retrieve
+media_count <- as.integer(100)
+
+
+# ---
 # Initialize JVM
 
 jvm_status <- .jinit(paste0("./libs/instagramscraper-scraper-0.0.1.jar;",
@@ -12,7 +22,7 @@ jvm_status <- .jinit(paste0("./libs/instagramscraper-scraper-0.0.1.jar;",
                             "./libs/gson-2.8.0.jar"))
 
 ## Print the classpath
-print(.jclassPath())
+# print(.jclassPath())
 
 ## Check the JVM init
 if (jvm_status == 0) {
@@ -42,7 +52,6 @@ if (is.jnull(j_instagram)) {
 ## Call method Instagram.getAccountByUsername()
 ## Params:
 ## - String username: "berlinphil" (@berlinphil, Berliner Philharmoniker)
-user_account <- "berlinphil"
 j_account <- jInstagram$getAccountByUsername(user_account)
 
 if (is.jnull(j_account)) {
@@ -101,14 +110,13 @@ write.csv(df_account,
 ## - int count: 100 (to retrieve only 100 posts)
 ## Return:
 ## - Array of Media objects
-medias_count <- as.integer(100)
 tryCatch(
     j_medias_array <-
         .jcall(j_instagram,
                "[Lme/postaddict/instagramscraper/model/Media;",
                "getMediasArray", 
                user_account, 
-               medias_count,
+               media_count,
                evalString = FALSE),
     Exception = function(e) {
         e$printStackTrace()
