@@ -52,7 +52,7 @@ if (is.jnull(j_instagram)) {
 ## Call method Instagram.getAccountByUsername()
 ## Params:
 ## - String username: "berlinphil" (@berlinphil, Berliner Philharmoniker)
-j_account <- jInstagram$getAccountByUsername(user_account)
+j_account <- j_instagram$getAccountByUsername(user_account)
 
 if (is.jnull(j_account)) {
     stop("Error: Can't retrieve account information.")
